@@ -1,0 +1,4 @@
+// the configured options and settings for dns-aap
+#define hcr_nn_VERSION_MAJOR @hcr_nn_VERSION_MAJOR@
+#define hcr_nn_VERSION_MINOR @hcr_nn_VERSION_MINOR@
+#define hcr_nn_VERSION_PATCH @hcr_nn_VERSION_PATCH@
