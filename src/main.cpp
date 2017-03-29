@@ -7,6 +7,7 @@
 int main(int argc, char * argv[]) {
 	std::string cmd(func::Helper::SplitFilename(argv[0]));
 
+	//Verify arguments
 	if(argc != 2) {
 		func::Helper::Version(std::cout, cmd);
 		std::cerr << "usage: " << cmd << " file" << std::endl;
@@ -20,6 +21,7 @@ int main(int argc, char * argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	//Start data parsement
 	hcr::Parse parser = hcr::Parse();
 
 	parser.ReadFile(filepath);
