@@ -20,6 +20,15 @@ int main(int argc, char * argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	hcr::Parse::ReadFile(filepath);
+	hcr::Parse parser = hcr::Parse();
+
+	parser.ReadFile(filepath);
+
+	int total(0);
+	for(auto const& map : parser.GetData()) {
+		total += map.second.size();
+		std::cout << map.first << "->" << map.second.size() << std::endl;
+	}
+	std::cout << "Total->" << total << std::endl;
 	exit(EXIT_SUCCESS);
 }
