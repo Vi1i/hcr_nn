@@ -6,30 +6,37 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <map>
+#include <climits>
 
 namespace hcr {
 class Parse {
 public:
 	/**
+	 * Constructor
+	 * Initializes the variables used in the various calls
+	 */
+	Parse() {};
+
+	/**
+	 * Deconstructor
+	 * Cleans up the class
+	 */
+	virtual ~Parse() {};
+
+	/**
+	 * Getter for data
+	 * This is the function to return the data retrieved from reading the file
+	 * return const std::map<int, std::vector<std::vector<int>>> the data read
+	 */
+	 const std::map<int, std::vector<std::vector<int>>>& GetData();
+
+	/**
 	 * Will read a file with 
 	 *
 	 * @param filepath The path to the file to read
 	 */
-	static void ReadFile(std::string filepath) {
-		std::ifstream ifs(filepath);
-		std::string line;
-		char deliminator = ',';
-		int line_count = 0;
-
-		if(ifs.is_open()) {
-			while(std::getline(ifs, line)) {
-				std::cout << line << std::endl;
-				line_count++;
-			}
-		}
-
-		ifs.close();
-	}
+	void ReadFile(std::string filepath);
 
     //! str2int() error codes.
     /*! These set of ENUMs are to allow the str2int() to give high detailed
@@ -104,6 +111,9 @@ public:
 	    hcr::Parse::Split(s, delim, std::back_inserter(elems));
 	    return elems;
 	}
+
+private:
+	std::map<int, std::vector<std::vector<int>>> data;
 };
 }
 #endif
