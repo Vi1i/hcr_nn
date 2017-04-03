@@ -17,6 +17,7 @@ void hcr::Parse::ReadFile(std::string filepath) {
 			int key = li_data.back();
 			li_data.pop_back();
 			this->data[key].push_back(li_data);
+			this->order.push_back(key);
 		}
 	}
 
@@ -25,4 +26,8 @@ void hcr::Parse::ReadFile(std::string filepath) {
 
 const std::map<int, std::vector<std::vector<int>>>& hcr::Parse::GetData() {
 	return this->data;
+}
+
+const std::vector<int>& hcr::Parse::GetOrder() {
+	return this->order;
 }

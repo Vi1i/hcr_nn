@@ -3,6 +3,7 @@
 
 #include "Func/func.hpp"
 #include "HCR/parse.hpp"
+#include "HCR/hcr.hpp"
 
 int main(int argc, char * argv[]) {
 	std::string cmd(func::Helper::SplitFilename(argv[0]));
@@ -22,15 +23,12 @@ int main(int argc, char * argv[]) {
 	}
 
 	//Start data parsement
-	hcr::Parse parser = hcr::Parse();
+	hcr::Parse training = hcr::Parse();
+	hcr::Parse testing = hcr::Parse();
 
-	parser.ReadFile(filepath);
+	training.ReadFile(filepath);
 
-	int total(0);
-	for(auto const& map : parser.GetData()) {
-		total += map.second.size();
-		std::cout << map.first << "->" << map.second.size() << std::endl;
-	}
-	std::cout << "Total->" << total << std::endl;
+	hcr::HCR hcr = hcr::HCR(training.GetData(), training.GetOrder());
+	hcr.Train();
 	exit(EXIT_SUCCESS);
 }

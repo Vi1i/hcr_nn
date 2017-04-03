@@ -27,9 +27,17 @@ public:
 	/**
 	 * Getter for data
 	 * This is the function to return the data retrieved from reading the file
-	 * return const std::map<int, std::vector<std::vector<int>>> the data read
+	 * @return const std::map<int, std::vector<std::vector<int>>>& The data read
 	 */
 	 const std::map<int, std::vector<std::vector<int>>>& GetData();
+
+	/**
+	 * Getter for data order
+	 * This is the function to return the order of the data retrieved from
+	 * reading the file 
+	 * @return const std::vector<int>& The order of the data read
+	 */
+	 const std::vector<int>& GetOrder();
 
 	/**
 	 * Will read a file with 
@@ -114,6 +122,7 @@ public:
 
 private:
 	std::map<int, std::vector<std::vector<int>>> data;
+	std::vector<int> order;
 };
 }
 #endif
