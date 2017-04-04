@@ -35,7 +35,13 @@ private:
 					   const std::vector<double>& inputs);
 	double FeedForward(const std::vector<double>& weights,
 					   const std::vector<int>& inputs);
-	double Activation(double val);
+    double Sigmoid(double val);
+    double dSigmoid(double val);
+    std::string Classification(int val, int size);
+    int Classification(const std::vector<double>& output);
+    std::vector<double> ClassificationMatrix(int val, int size);
+    double NetError(const std::vector<double>& output,
+                    const std::vector<double>& e_output);
 	void PrintWeights();
 };
 }

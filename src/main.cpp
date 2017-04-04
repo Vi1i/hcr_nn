@@ -18,7 +18,8 @@ int main(int argc, char * argv[]) {
 	std::string filepath(argv[1]);
 	if(!func::Helper::FileExists(filepath)) {
 		func::Helper::Version(std::cout, cmd);
-		std::cerr << "File does not exist or is not able to be read!" << std::endl;
+		std::cerr << "File does not exist or is not able to be read!"
+                  << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
