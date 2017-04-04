@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <random>
 
 #include "hcr.hpp"
 
@@ -14,9 +15,9 @@ hcr::HCR::HCR(const std::map<int, std::vector<std::vector<int>>>& training,
 }
 
 hcr::HCR::HCR(const std::map<int, std::vector<std::vector<int>>>& training,
-	const std::map<int, std::vector<std::vector<int>>>& test,
-	const std::vector<int>& training_order,
-	const std::vector<int>& test_order) {
+			const std::map<int, std::vector<std::vector<int>>>& test,
+			const std::vector<int>& training_order,
+			const std::vector<int>& test_order) {
 
 	this->training_data = training;
 	this->test_data = test;
@@ -27,16 +28,18 @@ hcr::HCR::HCR(const std::map<int, std::vector<std::vector<int>>>& training,
 
 }
 
-void hcr::HCR::SetTrainingData(const std::map<int, std::vector<std::vector<int>>>& training,
-					 const std::vector<int>& training_order){
+void hcr::HCR::SetTrainingData(const std::map<int,
+			std::vector<std::vector<int>>>& training,
+			const std::vector<int>& training_order){
 	this->training_data = training;
 	this->training_order = training_order;
 	this->train = true;
 
 }
 
-void hcr::HCR::SetTestingData(const std::map<int, std::vector<std::vector<int>>>& test,
-					const std::vector<int>& test_order) {
+void hcr::HCR::SetTestingData(const std::map<int,
+			std::vector<std::vector<int>>>& test,
+			const std::vector<int>& test_order) {
 
 	this->test_data = test;
 	this->test_order = test_order;
@@ -50,27 +53,67 @@ void hcr::HCR::Train() {
 	std::map<int, int> pos;
 	for(auto const& place : this->training_order) {
 		std::vector<int> data(this->training_data[place][pos[place]]);
-		std::vector<double> data2;
-		std::vector<double> data3;
-		for(auto const& weights : this->weights[0]) {
-			data2.push_back(this->Sigmoid(this->FeedForward(weights, data)));
-		}
-		for(auto const& weights : this->weights[1]) {
-			data3.push_back(this->Sigmoid(this->FeedForward(weights, data2)));
+		std::vector<double> ih_data;
+		std::vector<double> ho_data;
+
+		for(auto z = 0; z < this->input_size; z++) {
+			ih_data.push_back(this->Sigmoid(this->FeedForward(
+						this->weights[IH_LAYER][z], data)));
 		}
 
-        std::cout << "Calculated: ";
-        for(auto const& val : data3) {
-            std::cout << val << " ";
-        }
-        std::cout << std::endl;
-        std::string expected(this->Classification(place, data3.size()));
-		std::vector<double> expected_d(this->ClassificationMatrix(place, data3.size()));
-        double error(this->NetError(data3, expected_d));
-        std::cout << "Expected " << place << ": " << expected << std::endl;;
-        std::cout << "Error     : " << error << std::endl;;
+		for(auto z = 0; z < this->output_size; z++) {
+			ho_data.push_back(this->Sigmoid(this->FeedForward(
+						this->weights[HO_LAYER][z], ih_data)));
+		}
+
+		std::cout << "Calculated: ";
+		for(auto const& val : ho_data) {
+			std::cout << val << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "Activated : ";
+		for(auto const& val : ho_data) {
+			std::cout << this->Activation(val) << " ";
+		}
+		std::cout << std::endl;
+		std::string expected(this->Classification(place, ho_data.size()));
+		std::vector<double> expected_d(this->ClassificationMatrix(place,
+					ho_data.size()));
+		double net_error(this->NetError(ho_data, expected_d));
+		std::cout << "Expected " << place << ": " << expected << std::endl;;
+		std::cout << "Net Error : " << net_error << std::endl;
+
+		std::vector<double> output_error;
+		for(auto const& node : ho_data) {
+			double y(ho_data[node]);
+			double t(expected_d[node]);
+			double error((t - y) * y * (1 - y));
+			output_error.push_back(error);
+		}
+
+		std::vector<double> hidden_error;
+		for(auto node = 0; node < this->input_size + 1; node++) {
+			double error(0.0);
+			double sum(0.0);
+			double h(1.0);
+			if(node != 0) {
+				h = ih_data[node - 1];
+			}
+			for(auto output = 0; output < output_error.size(); output++) {
+				double oe(output_error[output]);
+				double w(this->weights[HO_LAYER][output][node]);
+
+				sum += w * oe;
+			}
+			error = (h * (1 - h)) * sum;
+			hidden_error.push_back(error);
+		}
+
+		this->BackProp(output_error, HO_LAYER, ho_data);
+		this->BackProp(hidden_error, IH_LAYER, ih_data);
+		this->PrintWeights();
 		pos[place]++;
-        break;
+		std::cin.get();
 	}
 }
 
@@ -78,7 +121,7 @@ void hcr::HCR::PrintWeights() {
 	for(auto const& vector : this->weights) {
 		for(auto const& layer : vector) {
 			for(auto const w : layer) {
-				std::cout << w << " ";
+				std::cout << w << "\t";
 			}
 			std::cout << std::endl;
 		}
@@ -91,63 +134,64 @@ void hcr::HCR::Test() {
 
 
 void hcr::HCR::InitializeNN() {
-	int output_size(this->training_data.size());
-	int input_size(0);
+	this->output_size = this->training_data.size();
+	this->input_size = 0;
 	int key(0);
 	int layers(2);
 	for(auto const map : this->training_data) {
 		key = map.first;
 		break;
 	}
-	input_size = this->training_data.at(key).at(0).size();
+	this->input_size = this->training_data.at(key).at(0).size();
 
-	std::cout << "Outputs: " << output_size << std::endl;
-	std::cout << "Inputs: " << input_size << std::endl;
+	std::cout << "Outputs: " << this->output_size << std::endl;
+	std::cout << "Inputs: " << this->input_size << std::endl;
 	std::cout << "Layers: " << layers << std::endl;
 
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution(
+				-1/std::sqrt(this->input_size),1/std::sqrt(this->input_size));
 
+	// Weights between input and hidden
 	this->weights.clear();
-	for(auto x = 0; x < layers; x++) {				//The layers
-        if(x + 1 < layers) {
-            std::vector<std::vector<double>> row;
-            for(auto y = 0; y < input_size; y++) {	//The nodes on the layer
-                std::vector<double> values;
-                for(auto z = 0; z < input_size + 1; z++) {	//The weights for each node
-                    values.push_back(0);
-                }
-                row.push_back(values);
-            }
-            this->weights.push_back(row);
-        }else{
-            std::vector<std::vector<double>> row;
-            for(auto y = 0; y < output_size; y++) {	//The nodes on the layer
-                std::vector<double> values;
-                for(auto z = 0; z < input_size + 1; z++) {	//The weights for each node
-                    values.push_back(0);
-                }
-                row.push_back(values);
-            }
-            this->weights.push_back(row);
+	std::vector<std::vector<double>> row;
+    for(auto y = 0; y < this->input_size; y++) {
+        std::vector<double> values;
+        for(auto z = 0; z < this->input_size + 1; z++) {
+            values.push_back(distribution(generator));
         }
-	}
+        row.push_back(values);
+    }
+    this->weights.push_back(row);
+
+	// Weights between hidden and output
+	row.clear();
+
+    for(auto y = 0; y < this->output_size; y++) {
+        std::vector<double> values;
+        for(auto z = 0; z < this->input_size + 1; z++) {
+            values.push_back(distribution(generator));
+        }
+        row.push_back(values);
+    }
+    this->weights.push_back(row);
+
 }
 
 double hcr::HCR::FeedForward(const std::vector<double>& weights,
-						 	 const std::vector<double>& inputs) {
+			const std::vector<double>& inputs) {
 	double result(0.0);
-	for(auto z = 0; z < weights.size(); z++) {
-		if(z == 0) {
-			result += weights[z] * (double)1;
-		}else {
+	for(auto z = 1; z < weights.size(); z++) {
 			result += weights[z] * inputs[z - 1];
-		}
 	}
-	//std::cout << this->weights.size() << std::endl;
+	// Add the bias
+	result += weights[0];
+
 	return result;
 }
 
 double hcr::HCR::FeedForward(const std::vector<double>& weights,
-						 	 const std::vector<int>& inputs) {
+			const std::vector<int>& inputs) {
 	double result(0.0);
 	std::vector<double> d_inputs;
 	for(auto const& val : inputs) {
@@ -160,12 +204,6 @@ double hcr::HCR::FeedForward(const std::vector<double>& weights,
 double hcr::HCR::Sigmoid(double val) {
 	double result(0);
 	result = 1 / (std::exp(-1 * val) + 1);
-	return result;
-}
-
-double hcr::HCR::dSigmoid(double val) {
-	double result(0);
-	result = std::exp(val) / std::pow(std::exp(val) + 1, 2.0);
 	return result;
 }
 
@@ -211,12 +249,30 @@ int hcr::HCR::Classification(const std::vector<double>& output) {
 }
 
 double hcr::HCR::NetError(const std::vector<double>& output,
-                          const std::vector<double>& e_output) {
+			const std::vector<double>& e_output) {
     double error(0.0);
-    for(auto z = 0; z < output.size(); z++) {\
-        error += std::pow(std::abs(e_output[z] - output[z]), 2.0);
+    for(auto z = 0; z < output.size(); z++) {
+        error += std::pow((e_output[z] - output[z]), 2.0);
     }
 
     error = error / (double) 2;
     return error;
+}
+
+double hcr::HCR::Activation(double val) {
+	return (val > 0.5) ? 1.0 : 0.0;
+}
+
+void hcr::HCR::BackProp(std::vector<double> errors, int layer,
+			std::vector<double> input) {
+	for(auto z = 0; z < this->weights[layer].size(); z++) {
+		for(auto y = 0; y < errors.size(); y++) {
+			double w(this->weights[layer][z][y]);
+			if(y == 0) { //bias
+				this->weights[layer][z][y] = w + 0.1 * errors[y];
+			}else{
+				this->weights[layer][z][y] = w + 0.1 * errors[y] * input[y];
+			}
+		}
+	}
 }
