@@ -49,18 +49,19 @@ public:
     //! str2int() error codes.
     /*! These set of ENUMs are to allow the str2int() to give high detailed
     	errors. */
-	enum STR2INT_ERROR { SUCCESS,		/*!< When no errors occur while
-											 calculating the integer from the
-											 string. */  
-						 OVERFLOW,		/*!< When the value is larger than the
-						 					 integer size for the machine. */  
-						 UNDERFLOW,		/*!< When the integer is a number of
-						 					 smaller absolute value than the
-						 					 computer can actually store in
-						 					 memory. */
-						 INCONVERTIBLE	/*!< When the string value cannot be 
-											 converted into an integer. */  
-					   };
+	enum STR2INT_ERROR {
+				SUCCESS,		/*!< When no errors occur while
+									 calculating the integer from the
+									 string. */  
+				OVERFLOW,		/*!< When the value is larger than the
+				 					 integer size for the machine. */  
+				UNDERFLOW,		/*!< When the integer is a number of
+				 					 smaller absolute value than the
+				 					 computer can actually store in
+				 					 memory. */
+				INCONVERTIBLE	/*!< When the string value cannot be 
+									 converted into an integer. */  
+				};
 
 	/**
 	 * This takes a string input and get an integer value out of it, while

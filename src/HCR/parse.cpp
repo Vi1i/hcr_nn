@@ -7,7 +7,8 @@ void hcr::Parse::ReadFile(std::string filepath) {
 
 	if(ifs.is_open()) {
 		while(std::getline(ifs, line)) {
-			std::vector<std::string> l_data = hcr::Parse::Split(line, deliminator);
+			std::vector<std::string> l_data = hcr::Parse::Split(line,
+						deliminator);
 			std::vector<int> li_data;
 			for(auto const& el : l_data) {
 				int i;
