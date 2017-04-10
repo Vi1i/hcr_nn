@@ -29,7 +29,7 @@ public:
 	 * This is the function to return the data retrieved from reading the file
 	 * @return const std::map<int, std::vector<std::vector<int>>>& The data read
 	 */
-	 const std::map<int, std::vector<std::vector<int>>>& GetData();
+	 const std::map<int, std::vector<std::vector<double>>>& GetData();
 
 	/**
 	 * Getter for data order
@@ -122,7 +122,7 @@ public:
 	}
 
 private:
-	std::map<int, std::vector<std::vector<int>>> data;
+	std::map<int, std::vector<std::vector<double>>> data;
 	std::vector<int> order;
 };
 }

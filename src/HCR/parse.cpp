@@ -17,7 +17,12 @@ void hcr::Parse::ReadFile(std::string filepath) {
 			}
 			int key = li_data.back();
 			li_data.pop_back();
-			this->data[key].push_back(li_data);
+			std::vector<double> norm_data;
+            for(auto const& val : li_data) {
+                double norm_val(val / (double) 16);
+                norm_data.push_back(norm_val);
+            }
+            this->data[key].push_back(norm_data);
 			this->order.push_back(key);
 		}
 	}
@@ -25,7 +30,7 @@ void hcr::Parse::ReadFile(std::string filepath) {
 	ifs.close();
 }
 
-const std::map<int, std::vector<std::vector<int>>>& hcr::Parse::GetData() {
+const std::map<int, std::vector<std::vector<double>>>& hcr::Parse::GetData() {
 	return this->data;
 }
 

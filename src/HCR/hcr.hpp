@@ -8,10 +8,10 @@ class HCR {
 public:
 	HCR() : test(false), train(false) {};
 	HCR(const std::map<int, std::vector<std::vector<int>>>& training,
-		const std::vector<int>& training_order);
+				const std::vector<int>& training_order);
 	
-	HCR(const std::map<int, std::vector<std::vector<int>>>& training,
-				const std::map<int, std::vector<std::vector<int>>>& test,
+	HCR(const std::map<int, std::vector<std::vector<double>>>& training,
+				const std::map<int, std::vector<std::vector<double>>>& test,
 				const std::vector<int>& training_order,
 				const std::vector<int>& test_order);
 
@@ -26,8 +26,8 @@ public:
 private:
 	int output_size;
 	int input_size;
-	std::map<int, std::vector<std::vector<int>>> training_data;
-	std::map<int, std::vector<std::vector<int>>> test_data;
+	std::map<int, std::vector<std::vector<double>>> training_data;
+	std::map<int, std::vector<std::vector<double>>> test_data;
 	std::vector<int> training_order;
 	std::vector<int> test_order;
 
@@ -44,13 +44,18 @@ private:
 	void BackProp(std::vector<double> errors, int layer,
 				std::vector<double> input);
     double Sigmoid(double val);
-    double Activation(double val);
+    std::vector<double> Activation(std::vector<double> sigma);
     std::string Classification(int val, int size);
     int Classification(const std::vector<double>& output);
     std::vector<double> ClassificationMatrix(int val, int size);
     double NetError(const std::vector<double>& output,
                     const std::vector<double>& e_output);
 	void PrintWeights();
+	std::vector<double> OutputError(const std::vector<double>& result,
+				const std::vector<double>& expected_result);
+	std::vector<double> HiddenError(const std::vector<double>& input,
+				const std::vector<double>& output_errors);
+
 };
 }
 
