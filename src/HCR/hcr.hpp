@@ -55,7 +55,7 @@ private:
 				const std::vector<double>& expected_result);
 	std::vector<double> HiddenError(const std::vector<double>& input,
 				const std::vector<double>& output_errors);
-
+	std::vector<double> Feed(std::vector<double> data, int layer);
 };
 }
 

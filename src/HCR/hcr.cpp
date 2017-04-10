@@ -21,38 +21,28 @@ hcr::HCR::HCR(const std::map<int, std::vector<std::vector<double>>>& training,
 	this->test_order = test_order;
 	this->test = true;
 	this->train = true;
-
 	this->InitializeNN();
 }
 
 void hcr::HCR::SetTrainingData(const std::map<int,
 			std::vector<std::vector<int>>>& training,
 			const std::vector<int>& training_order){
-	this->InitializeNN();
+	//this->InitializeNN();
 }
 
 void hcr::HCR::SetTestingData(const std::map<int,
 			std::vector<std::vector<int>>>& test,
 			const std::vector<int>& test_order) {
-	this->InitializeNN();
+	//this->InitializeNN();
 }
 
 void hcr::HCR::Train() {
 	std::map<int, int> pos;
 	for(auto const& place : this->training_order) {
 		std::vector<double> data(this->training_data[place][pos[place]]);
-		std::vector<double> ih_data;
-		std::vector<double> ho_data;
 
-		for(auto node = 0; node < this->weights[IH_LAYER].size(); node++) {
-			ih_data.push_back(this->Sigmoid(this->FeedForward(
-						this->weights[IH_LAYER][node], data)));
-		}
-
-		for(auto node = 0; node < this->weights[HO_LAYER].size(); node++) {
-			ho_data.push_back(this->Sigmoid(this->FeedForward(
-						this->weights[HO_LAYER][node], ih_data)));
-		}
+		std::vector<double> ih_data(this->Feed(data, IH_LAYER));
+		std::vector<double> ho_data(this->Feed(ih_data, HO_LAYER));
 
         std::vector<double> activated(this->Activation(ho_data));
         std::string expected(this->Classification(place, ho_data.size()));
@@ -60,14 +50,17 @@ void hcr::HCR::Train() {
 					ho_data.size()));
 		double net_error(this->NetError(ho_data, expected_d));
 
-		std::vector<double> output_error(this->OutputError(ho_data, expected_d));
-		std::vector<double> hidden_error(this->HiddenError(ih_data, output_error));
-		//this->PrintWeights();
-		//std::cout << std::endl;
+		std::vector<double> output_error(this->OutputError(ho_data,
+					expected_d));
+		std::vector<double> hidden_error(this->HiddenError(ih_data,
+					output_error));
+		// std::cout << std::endl;
+		// this->PrintWeights();
+		// std::cout << std::endl;
 		this->BackProp(output_error, HO_LAYER, ho_data);
 		this->BackProp(hidden_error, IH_LAYER, ih_data);
-		//this->PrintWeights();
 		pos[place]++;
+		// this->PrintWeights();
 		// std::cout << "Input Input: ";
 		// for(auto const& val : data) {
 		// 	std::cout << val << " ";
@@ -96,9 +89,9 @@ void hcr::HCR::Train() {
 }
 
 void hcr::HCR::PrintWeights() {
-	for(auto const& vector : this->weights) {
-		for(auto const& layer : vector) {
-			for(auto const w : layer) {
+	for(auto const& layer : this->weights) {
+		for(auto const& node : layer) {
+			for(auto const w : node) {
 				std::cout << w << "\t";
 			}
 			std::cout << std::endl;
@@ -116,18 +109,9 @@ void hcr::HCR::Test() {
 	for(auto const& place : this->test_order) {
         ++total;
 		std::vector<double> data(this->test_data[place][pos[place]]);
-		std::vector<double> ih_data;
-		std::vector<double> ho_data;
 
-		for(auto node = 0; node < this->weights[IH_LAYER].size(); node++) {
-			ih_data.push_back(this->Sigmoid(this->FeedForward(
-						this->weights[IH_LAYER][node], data)));
-		}
-
-		for(auto node = 0; node < this->weights[HO_LAYER].size(); node++) {
-			ho_data.push_back(this->Sigmoid(this->FeedForward(
-						this->weights[HO_LAYER][node], ih_data)));
-		}
+		std::vector<double> ih_data(this->Feed(data, IH_LAYER));
+		std::vector<double> ho_data(this->Feed(ih_data, HO_LAYER));
 
         std::vector<double> activated(this->Activation(ho_data));
 		std::vector<double> expected(this->ClassificationMatrix(place,
@@ -210,8 +194,8 @@ double hcr::HCR::FeedForward(const std::vector<double>& weights,
 }
 
 double hcr::HCR::Sigmoid(double val) {
-	double result(0);
-	result = 1 / (std::exp(-1 * val) + 1);
+	double result(0.0);
+	result = 1.0 / (1.0 + std::abs(val));
 	return result;
 }
 
@@ -289,7 +273,7 @@ std::vector<double> hcr::HCR::Activation(std::vector<double> sigma) {
 
 void hcr::HCR::BackProp(std::vector<double> errors, int layer,
 			std::vector<double> input) {
-	double conf(0.09);
+	double conf(0.5);
 	for(auto node = 0; node < this->weights[layer].size(); node++) {
 		double err(errors[node]);
 		double inp(input[node]);
@@ -345,4 +329,14 @@ std::vector<double> hcr::HCR::HiddenError(const std::vector<double>& input,
 	}
 
 	return hidden_error;
+}
+
+std::vector<double> hcr::HCR::Feed(std::vector<double> data, int layer) {
+	std::vector<double> result;
+	for(auto node = 0; node < this->weights[layer].size(); node++) {
+		result.push_back(this->Sigmoid(this->FeedForward(
+					this->weights[layer][node], data)));
+	}
+
+	return result;
 }

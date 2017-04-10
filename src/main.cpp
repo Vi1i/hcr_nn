@@ -40,30 +40,22 @@ int main(int argc, char * argv[]) {
 
 	hcr::HCR hcr = hcr::HCR(training.GetData(), testing.GetData(), training.GetOrder(), testing.GetOrder());
 
-	double epochs(100);
+	double epochs(5);
 	std::string line("0%");
 	std::cout <<"Training: " << line << std::flush;
 	for(auto z = 0; z < epochs; z++) {
 		hcr.Train();
 
-		std::cout << std::string(line.length(), '\b');
-		std::stringstream ss;
-		ss << (z / epochs) * 100  << "%";
-		line = ss.str();
-		std::cout << line << std::flush;
+		// std::cout << std::string(line.length(), '\b');
+		// std::stringstream ss;
+		// ss << (z / epochs) * 100  << "%";
+		// line = ss.str();
+		// std::cout << line << std::flush;
+		hcr.Test();
 	}
 	std::cout << std::string(line.length(), '\b') << "100%" << std::endl;
 
 	hcr.Test();
-
-	// hcr.Train();
-	// hcr.Test();
-
-	// hcr.Train();
-	// hcr.Test();
-
-	// hcr.Train();
-	// hcr.Test();
 
 	exit(EXIT_SUCCESS);
 }
