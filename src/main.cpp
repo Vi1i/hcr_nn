@@ -40,7 +40,7 @@ int main(int argc, char * argv[]) {
 
 	hcr::HCR hcr(training.GetData(), testing.GetData(), training.GetOrder(), testing.GetOrder());
 
-	double epochs(1000);
+	double epochs(10000);
 	//std::string line("0%");
 	//std::cout <<"Training: " << line << std::flush;
 	std::cout << "EPOCH,TOTAL,CORRECT,ACCURACY(%)" << std::endl;

@@ -48,9 +48,9 @@ void hcr::HCR::Train(double mod) {
 		// std::cout << std::endl;
 
 		double net_error(this->NetError(ho_data, expected_d));
-		std::thread t1(&hcr::HCR::BackProp, this, HO_LAYER, net_error, output_error,
+		std::thread t1(&hcr::HCR::BackProp, this, HO_LAYER, .1, output_error,
 					ih_data);
-		std::thread t2(&hcr::HCR::BackProp, this, IH_LAYER, net_error, hidden_error,
+		std::thread t2(&hcr::HCR::BackProp, this, IH_LAYER, .1, hidden_error,
 					data);
 		t1.join();
 		t2.join();
@@ -295,14 +295,14 @@ std::vector<double> hcr::HCR::HiddenError(const std::vector<double>& input,
 				const std::vector<double>& output_errors) {
 	std::vector<double> result;
 
-	for(auto node = 1; node < this->weights[IH_LAYER].size(); node++) {
+	for(auto node = 0; node < this->weights[IH_LAYER].size(); node++) {
 		double error(0.0);
 		double sum(0.0);
-		double h(input[node - 1]);
+		double h(input[node]);
 
 		for(auto edge = 0; edge < this->weights[HO_LAYER].size(); edge++) {
 			double oe(output_errors[edge]);
-			double w(this->weights[HO_LAYER][edge][node]);
+			double w(this->weights[HO_LAYER][edge][node + 1]);
 			sum += w * oe;
 		}
 
