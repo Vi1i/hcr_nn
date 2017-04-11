@@ -9,6 +9,8 @@ set(hcr_nn_VERSION_PATCH 0)
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" ON)
 
+find_package (Threads)
+
 # check if Doxygen is installed
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
@@ -48,4 +50,4 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # Final target
 add_executable(hcr_nn ${hcr_nn_SRC})
-#target_link_libraries(hcr_nn)
+target_link_libraries(hcr_nn ${CMAKE_THREAD_LIBS_INIT})

@@ -12,7 +12,7 @@ public:
 				const std::vector<int>& training_order,
 				const std::vector<int>& test_order);
 
-	void Train();
+	void Train(double mod);
 	std::pair<int, int> Test();
 private:
 	int output_size;

@@ -21,7 +21,7 @@ hcr::HCR::HCR(const std::map<int, std::vector<std::vector<double>>>& training,
 	this->InitializeNN();
 }
 
-void hcr::HCR::Train() {
+void hcr::HCR::Train(double mod) {
 	std::map<int, int> pos;
 	for(auto const& place : this->training_order) {
 		std::vector<double> data(this->training_data[place][pos[place]]);
@@ -48,9 +48,9 @@ void hcr::HCR::Train() {
 		// std::cout << std::endl;
 
 		double net_error(this->NetError(ho_data, expected_d));
-		std::thread t1(&hcr::HCR::BackProp, this, HO_LAYER, 0.05, output_error,
+		std::thread t1(&hcr::HCR::BackProp, this, HO_LAYER, net_error, output_error,
 					ih_data);
-		std::thread t2(&hcr::HCR::BackProp, this, IH_LAYER, 0.05, hidden_error,
+		std::thread t2(&hcr::HCR::BackProp, this, IH_LAYER, net_error, hidden_error,
 					data);
 		t1.join();
 		t2.join();
@@ -203,8 +203,8 @@ double hcr::HCR::FeedForward(const std::vector<double>& weights,
 
 double hcr::HCR::Sigmoid(double val) {
 	double result(0.0);
-	//result = 1.0 / (std::exp(-1.0 * val) + 1.0);
-	result = 1.0 / (std::abs(val) + 1.0);
+	result = 1.0 / (std::exp(-1.0 * val) + 1.0);
+	//result = 1.0 / (std::abs(val) + 1.0);
 	return result;
 }
 

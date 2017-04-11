@@ -45,7 +45,7 @@ int main(int argc, char * argv[]) {
 	//std::cout <<"Training: " << line << std::flush;
 	std::cout << "EPOCH,TOTAL,CORRECT,ACCURACY(%)" << std::endl;
 	for(auto z = 0; z < epochs; z++) {
-		hcr.Train();
+		hcr.Train(z / 10.0);
 
 		// std::cout << std::string(line.length(), '\b');
 		// std::stringstream ss;
