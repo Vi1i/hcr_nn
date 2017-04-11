@@ -9,17 +9,18 @@ void hcr::Parse::ReadFile(std::string filepath) {
 		while(std::getline(ifs, line)) {
 			std::vector<std::string> l_data = hcr::Parse::Split(line,
 						deliminator);
-			std::vector<int> li_data;
+			std::vector<double> li_data;
 			for(auto const& el : l_data) {
-				int i;
-				hcr::Parse::str2int(i, el.c_str(), 10);
+				double i;
+				hcr::Parse::str2d(i, el.c_str());
 				li_data.push_back(i);
 			}
-			int key = li_data.back();
+
+			int key = (int)li_data.back();
 			li_data.pop_back();
 			std::vector<double> norm_data;
             for(auto const& val : li_data) {
-                double norm_val(val / (double) 16);
+                double norm_val(val /*/ (double) 16*/);
                 norm_data.push_back(norm_val);
             }
             this->data[key].push_back(norm_data);
