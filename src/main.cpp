@@ -38,11 +38,12 @@ int main(int argc, char * argv[]) {
 	training.ReadFile(filepath);
 	testing.ReadFile(t_filepath);
 
-	hcr::HCR hcr = hcr::HCR(training.GetData(), testing.GetData(), training.GetOrder(), testing.GetOrder());
+	hcr::HCR hcr(training.GetData(), testing.GetData(), training.GetOrder(), testing.GetOrder());
 
-	double epochs(5);
-	std::string line("0%");
-	std::cout <<"Training: " << line << std::flush;
+	double epochs(1000);
+	//std::string line("0%");
+	//std::cout <<"Training: " << line << std::flush;
+	std::cout << "EPOCH,TOTAL,CORRECT,ACCURACY(%)" << std::endl;
 	for(auto z = 0; z < epochs; z++) {
 		hcr.Train();
 
@@ -51,11 +52,12 @@ int main(int argc, char * argv[]) {
 		// ss << (z / epochs) * 100  << "%";
 		// line = ss.str();
 		// std::cout << line << std::flush;
-		hcr.Test();
+		auto p(hcr.Test());
+		std::cout << z + 1 << "," << p.first << "," << p.second << "," << (p.second / (double)p.first) << std::endl;
 	}
-	std::cout << std::string(line.length(), '\b') << "100%" << std::endl;
+	//std::cout << std::string(line.length(), '\b') << "100%" << std::endl;
 
-	hcr.Test();
+	//hcr.Test();
 
 	exit(EXIT_SUCCESS);
 }

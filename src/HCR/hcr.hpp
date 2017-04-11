@@ -6,23 +6,14 @@ class HCR {
 #define HO_LAYER 1
 #define IH_LAYER 0
 public:
-	HCR() : test(false), train(false) {};
-	HCR(const std::map<int, std::vector<std::vector<int>>>& training,
-				const std::vector<int>& training_order);
 	
 	HCR(const std::map<int, std::vector<std::vector<double>>>& training,
 				const std::map<int, std::vector<std::vector<double>>>& test,
 				const std::vector<int>& training_order,
 				const std::vector<int>& test_order);
 
-	void SetTrainingData(const std::map<int,
-				std::vector<std::vector<int>>>& training,
-				const std::vector<int>& training_order);
-	void SetTestingData(const std::map<int,
-				std::vector<std::vector<int>>>& test,
-				const std::vector<int>& test_order);
 	void Train();
-	void Test();
+	std::pair<int, int> Test();
 private:
 	int output_size;
 	int input_size;
@@ -31,31 +22,45 @@ private:
 	std::vector<int> training_order;
 	std::vector<int> test_order;
 
-	bool test;
-	bool train;
-
 	std::vector<std::vector<std::vector<double>>> weights;
 
 	void InitializeNN();
+
 	double FeedForward(const std::vector<double>& weights,
 				const std::vector<double>& inputs);
+
 	double FeedForward(const std::vector<double>& weights,
 				const std::vector<int>& inputs);
-	void BackProp(std::vector<double> errors, int layer,
-				std::vector<double> input);
+
+	void BackProp(int layer, double confidence,
+				std::vector<double> errors, std::vector<double> input);
+
     double Sigmoid(double val);
-    std::vector<double> Activation(std::vector<double> sigma);
-    std::string Classification(int val, int size);
-    int Classification(const std::vector<double>& output);
-    std::vector<double> ClassificationMatrix(int val, int size);
+	std::vector<double> Sigmoid(const std::vector<double>& vals);
+    double DSigmoid(double val);
+
     double NetError(const std::vector<double>& output,
-                    const std::vector<double>& e_output);
+                    const std::vector<int>& e_output);
+
 	void PrintWeights();
+
 	std::vector<double> OutputError(const std::vector<double>& result,
-				const std::vector<double>& expected_result);
+				const std::vector<int>& expected_result);
+
 	std::vector<double> HiddenError(const std::vector<double>& input,
 				const std::vector<double>& output_errors);
+
 	std::vector<double> Feed(std::vector<double> data, int layer);
+
+	std::vector<double> SoftMax(std::vector<double> output);
+
+    std::vector<int> Max(std::vector<double> data);
+    std::vector<double> Activation(const std::vector<double>& data);
+    std::vector<double> ActivationDerivitive(const std::vector<double>& data);
+    double Activate(double val);
+    double ActivateDerivitive(double val);
+
+    std::vector<int> ClassificationMatrix(int val, int size);
 };
 }
 
