@@ -157,6 +157,7 @@ void hcr::HCR::InitializeNN() {
 	std::uniform_real_distribution<double> distribution(
 				-1/std::sqrt((double)this->input_size),1/std::sqrt((double)this->input_size));
 				//-0.5,0.5);
+				//0,1);
 
 	//Clear out the current weights, just incase.
 	this->weights.clear();
@@ -291,14 +292,14 @@ std::vector<double> hcr::HCR::OutputError(const std::vector<double>& result,
 	return output_error;
 }
 
-std::vector<double> hcr::HCR::HiddenError(const std::vector<double>& input,
+std::vector<double> hcr::HCR::HiddenError(const std::vector<double>& output,
 				const std::vector<double>& output_errors) {
 	std::vector<double> result;
 
 	for(auto node = 0; node < this->weights[IH_LAYER].size(); node++) {
 		double error(0.0);
 		double sum(0.0);
-		double h(input[node]);
+		double h(output[node]);
 
 		for(auto edge = 0; edge < this->weights[HO_LAYER].size(); edge++) {
 			double oe(output_errors[edge]);
