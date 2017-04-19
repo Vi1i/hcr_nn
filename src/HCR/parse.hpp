@@ -8,6 +8,7 @@
 #include <sstream>
 #include <map>
 #include <climits>
+#include <float.h>
 
 namespace hcr {
 class Parse {
@@ -34,13 +35,13 @@ public:
 	/**
 	 * Getter for data order
 	 * This is the function to return the order of the data retrieved from
-	 * reading the file 
+	 * reading the file
 	 * @return const std::vector<int>& The order of the data read
 	 */
 	 const std::vector<int>& GetOrder();
 
 	/**
-	 * Will read a file with 
+	 * Will read a file with
 	 *
 	 * @param filepath The path to the file to read
 	 */
@@ -52,17 +53,32 @@ public:
 	enum STR2INT_ERROR {
 				SUCCESS,		/*!< When no errors occur while
 									 calculating the integer from the
-									 string. */  
+									 string. */
 				OVERFLOW,		/*!< When the value is larger than the
-				 					 integer size for the machine. */  
+				 					 integer size for the machine. */
 				UNDERFLOW,		/*!< When the integer is a number of
 				 					 smaller absolute value than the
 				 					 computer can actually store in
 				 					 memory. */
-				INCONVERTIBLE	/*!< When the string value cannot be 
-									 converted into an integer. */  
+				INCONVERTIBLE	/*!< When the string value cannot be
+									 converted into an integer. */
 				};
-
+		//! str2d() error codes.
+		/*! These set of ENUMs are to allow the str2int() to give high detailed
+			errors. */
+		enum STR2D_ERROR {
+				SUCCESS_D,		/*!< When no errors occur while
+									 calculating the integer from the
+									 string. */
+				OVERFLOW_D,		/*!< When the value is larger than the
+									 integer size for the machine. */
+				UNDERFLOW_D,		/*!< When the integer is a number of
+									 smaller absolute value than the
+									 computer can actually store in
+									 memory. */
+				INCONVERTIBLE_D	/*!< When the string value cannot be
+									 converted into an integer. */
+				};
 	/**
 	 * This takes a string input and get an integer value out of it, while
 	 * paying attention to the errors that could occur.
@@ -88,6 +104,33 @@ public:
 	    }
 	    i = l;
 	    return SUCCESS;
+	}
+
+	/**
+	 * This takes a string input and get an integer value out of it, while
+	 * paying attention to the errors that could occur.
+	 *
+	 * @param i Where the integer value will be stored
+	 * @param s The string to be converted
+	 * @param base the numerical base to convert to.
+	 * @return STR2INT_ERROR This details the events of the split
+	 */
+	static STR2D_ERROR str2d (double &i, char const *s) {
+			char *end;
+			long  l;
+			errno = 0;
+			l = strtod(s, &end);
+			if((errno == ERANGE && l == DBL_MAX)) {
+					return OVERFLOW_D;
+			}
+			if((errno == ERANGE && l == DBL_MIN)) {
+					return UNDERFLOW_D;
+			}
+			if(*s == '\0' || *end != '\0') {
+					return INCONVERTIBLE_D;
+			}
+			i = l;
+			return SUCCESS_D;
 	}
 
 	/**
